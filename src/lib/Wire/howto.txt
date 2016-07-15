@@ -1,0 +1,24 @@
+// this initializes I2C as master
+void setup()
+{
+  Wire.begin();
+}
+
+// sending data to slave
+  Wire.beginTransmission(112); // this sets address of device and prepares buffer(s)
+  Wire.write(byte(0x00));      // inserts data into tx buffer  
+  Wire.write(byte(0x50));      // inserts more data into tx buffer 
+  ... 
+  Wire.write(byte(0x30));      // inserts more data into tx buffer 
+  Wire.endTransmission();      // this starts I2C master transmission and transmits the buffer to slave
+  
+
+// receiving data from slave
+  Wire.requestFrom(112, 2);    // this starts I2C master receive and reads two bytes from slave into buffer
+
+  if(2 <= Wire.available())    // way to check how many bytes have been received
+  {
+    Wire.read();  // get one byte from buffer
+    Wire.read(); // get next byte from buffer
+  }
+
