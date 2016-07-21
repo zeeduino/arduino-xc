@@ -37,9 +37,10 @@ In order to have HAL implemented for your controller, you'll have to:
     * download and build chip specific support libraries
     * create and build initial dummy HAL implementation project
     * create basic sketch project
-- implement HAL in 4 steps
+- implement HAL in 5 steps (or more :) )
     * setup pinout
     * implement digital functions
+    * implement delay functions
     * implement serial object
     * implement other pieces when you need them
 
@@ -52,14 +53,22 @@ First thing to do is to create a C++ library project using your chip's developme
 
 Arduino-XC core code is microcontroller-agnostic and should compile with no issues on any standard C++ compiler.
 
-Once Arduino-XC core is compiled and you have library built, it's time to prepare for implementing HAL.
+Make sure to add a symbol definition to your project setup:
+
+- name: **ARDUINO**
+- value: **200**
+
+C/C++ preprocessor and compiler will use this symbol to correctly include and compile various Arduino libraries.
+
+
+Once Arduino-XC core is compiled and you have the library built, it's time to prepare for implementing HAL.
 
 
 #### Chip-specific support libraries
 
 These days, every microcontroller manufacturer has some form of basic support code available for their chips. This is usually in a form of a library like [LPCOpen] for LPC controllers or [Atmel Software Framework] for AVR and SAM controllers, etc. Or it may be a bunch of application notes and some source code and examples to get you started quickly with that chip.
 
-Whatever is the case, you should get those libraries (or library) for your chosen chip and build and test them with simple blinky led program.
+Whatever is the case, you should get those libraries (or library) for your chosen chip and build and test them with simple blinky led program. We are not going to go into details of doing that since it is highly specific to whatever controller you are currently using.
 
 Once you have your chip's support library in place and working, it's time to create Arduino-XC HAL implementation library for your microcontroller.
 
@@ -68,19 +77,27 @@ Once you have your chip's support library in place and working, it's time to cre
 
 Clone the [portbase code](https://github.com/zeeduino/arduino-xc-portbase) and rename it to something that will be specific to your microcontroller, i.e. arduino-xc-lpc13xx.
 
-Now you need to create a C++ library project using your chip's development environment and add portbase source to it. You will also have to add references to arduino-xc library to the portbase project. Check out [this video][creating portbase library for lpc11u37] how we did it for LPC11U37 using LPCXpresso IDE. It will certainly be different for your controller, but it helps to get the general idea of what you need to do.
+Now you need to create a C++ library project using your chip's development environment and add portbase source to it. You will also have to add references to arduino-xc library to the portbase project. Check out [this video][creating portbase library for lpc11u37] to see how we did it for LPC11U37 using LPCXpresso IDE. It will certainly be different for your controller, but it helps to get the general idea of what you need to do.
 
-The most imprtant thing is that arduino-xc include folder is referenced in your portbase project.
+The most imprtant thing is that arduino-xc include (**`inc`**) folder is referenced in your portbase project.
 
 Next important thing is that your chip support library (LPCOpen, Atmel Software Framework, etc.) is referenced by your portbase project.
 
 Those two important things kind of underline the fact that HAL implementation library is a bridge between Arduino-XC core code and the chip specific code.
 
-Having your portbase project created and set up, build it. It will probably contain few errors or warnings, like complaining about undefined function or two. This is expected because arduino-xc-portbase project contains couple of calls to functions which do not exist and are there just as a placeholder or reminder. For example, **read_the_char_from_UART()** function is not a function, it just states that you need to read a character from your chip's UART peripheral at this point.
+Having your portbase project created and set up, build it. It will probably contain errors or warnings. This is expected because arduino-xc-portbase project contains couple of calls to functions which do not exist and are there just as a placeholder or reminder. For example, **read_the_char_from_UART()** function is not a function, it just states that you need to read a character from your chip's UART peripheral at this point.
 
 You can comment out these places where you have errors or warnings and aim to have your portbase compile clean, with no errors and warnings.
 
 Probably a place with the most issues will be the [pins_arduino.cpp](https://github.com/zeeduino/arduino-xc-portbase/blob/master/src/pins_arduino.cpp) file. This file contains constant definitions which are chip specific, and some may even not apply to your chip. All constants starting with **`LPC_`** and **`IOCON_`** are LPC chip specific and you can either replace them or define them as **`0`** at this point. You will have to come up with values here that are specific for your chip. More on that later.
+
+Also, make sure to add a symbol definition to your project setup:
+
+- name: **ARDUINO**
+- value: **200**
+
+C/C++ preprocessor and compiler will use this symbol to correctly include and compile various Arduino libraries.
+
 
 Once the portbase project is set up and ready, it's time to create a basic Arduino sketch we will use to check our HAL implementation progress.
 
@@ -93,7 +110,7 @@ As a quick start help, you can also use **`src/board.c`** and **`inc/board.h`** 
 
 Create an empty C++ executable project using your chip's development environment (for short, we'll call it IDE from now on) and add basicSketch.cpp to it. Your IDE should have created a source file which contains **main()** function. If that file only contains the main() function and nothing else of importance, you should delete that file. If the file contains some important bits and pieces, like chip initialization code, you should just delete the **main()** function and leave the file in the project.
 
-Next, add references to the project to:
+Next, add to the project references to:
 - arduino-xc library
 - your copy of arduino-xc-portbase library
 - your chip's support library
@@ -105,7 +122,7 @@ Now we need to tie in few pieces to get this Frankenstein off the ground.
 
 ##### Chip initialization code
 
-There usually is some sort of chip initialization code that starts up the chip, does some basic setup and then calls the **main()** function. [basicSketch project] contains `src` folder and within that folder there's a `lpcx` folder. the `lpcx` contains all the code that LPCXpressi IDE auto-generated when we created a C++ project.
+There usually is some sort of chip initialization code that starts up the chip, does some basic setup and then calls the **main()** function. [basicSketch project] contains `src` folder and within that folder there's a `lpcx` folder. the `lpcx` contains all the code that LPCXpressi IDE auto-generated when we created the C++ project.
 
 You may or may not want to look at those files, their content is not relevant for our work here, except for a few pieces.
 
@@ -115,7 +132,7 @@ You may or may not want to look at those files, their content is not relevant fo
 
 Tha main thing `Board_SystemInit()` has to do is to call **`initVariant()`** function. `Board_SystemInit()` seems like a unnecessary wrapper to call `initVariant()` but we did it this way so you can do some application specific initialization in `Board_SystemInit()`.
 
-If you do that, however, keep in mind that your Arduino code will not be easily portable anymore. On the other hand, Arduino-XC is here to enable you to quickly start with a project on your microcontroller, test how it works, and then add application specific detail which do not have to be portable, they only have to work and do what you need them to do in your hardware project.
+If you do that, however, keep in mind that your Arduino code will not be easily portable to some other microcontroller anymore. On the other hand, Arduino-XC is here to enable you to quickly start with a project on your microcontroller, test how it works, and then add application specific details which do not have to be portable, they only have to work and do what you need them to do in your hardware project.
 
 
 ###### Make sure `main()` is called from somewhere
@@ -132,7 +149,7 @@ Before building your basic sketch project, you should add a symbol definition to
 
 C/C++ preprocessor and compiler will use this symbol to correctly include and compile various Arduino libraries.
 
-Now, build your project and work your way through and errors or warnings there may be. Goal here is to get everything to compile cleanly, at this point the code doesn't do anything useful.
+Now, build your project and work your way through any errors or warnings there may be. Goal here is to get everything to compile cleanly, at this point the code doesn't do anything useful.
 
 
 #### Implementing HAL
@@ -148,6 +165,7 @@ Now we'll:
 
 - set up few pins on a chip as digital I/Os
 - write HAL code to work with digital pins
+- write HAL code to support Arduino delay functions
 - run basicSketch to blink LED on our board
 
 
@@ -207,8 +225,8 @@ Your task is to:
 - decide how many pins of your chip you want to use as Arduino pins
 - fill in elements of the `g_ArduinoPinDescription` array for chosen Arduino pins with correct values
 - fill in elements of the `g_ArduinoPinMappingDigital` array for chosen Arduino pins with correct values
-- fill in elements of the `g_ArduinoPinMappingPwm` array for chosen Arduino pins with correct values
-- mark all the rest of elements with (99,99) and **`NO_`** constants
+- fill in elements of the `g_ArduinoPinMappingPwm` array for chosen PWM channels and Arduino pins with correct values
+- mark all the rest of elements with port number value **`99`** and **`NO_`** constants
 - add chip specific code to **`Variant_Pins_Init()`** function to initialize microcontroller's physical pins with values configured in `g_ArduinoPinDescription` array, plus any other low-level pin related initialization (i.e. USB pins, JTAG pins etc.)
 
 
@@ -280,9 +298,9 @@ In our example above, we used **`IOCON_`** constants for `modefunc` fields. Thes
 
 > NOTE 2
 
-`DigitalMappingType` and `PwmMappingType` have `*` members `pPORT` and `pTMR`. You can use these either as pointers or 32-bit values. These uniquely identify a port or a timer/pwm peripheral on the chip. For LPC13xx implementation we used these as pointers and did cast to pointers to appropriate chip-specific structures in DIG_MAP_PORT and PWM_MAP_TIMER macros. You need to change these casts to whatever fits your implementation:
+`DigitalMappingType` and `PwmMappingType` have `void *` members `pPORT` and `pTMR`. You can use these either as pointers or 32-bit values. These uniquely identify a port or a timer/pwm peripheral on the chip. For LPC13xx implementation we used these as pointers and did cast to appropriate pointers to chip-specific structures in **`DIG_MAP_PORT`** and **`PWM_MAP_TIMER`** macros. You need to change these casts to whatever fits your implementation:
 
-- either cast to pointers to a chip specific structures or
+- either cast to a pointers to chip specific structures or
 - cast to 32-bit value.
 
 Now that you have set up pin mapping for your chip, it's time to implement digital pin functions.
@@ -312,22 +330,22 @@ Each of these has a part of it's code with the comment which starts like this:
 /* call chip library/your code here to ... */
 ```
 
-Your task is to change/replace whatever is below that comment with actual calls to functions from your chip's support library in order to do the task that HAL function requires:
+Your task is to add/change/replace whatever is immediately below that comment with actual calls to functions from your chip's support library in order to do the task that HAL function requires:
 
 - `Board_Digital_PinMode()`: set the physical port/pin mode to digital
-- `Board_Digital_Write()`: write value to selected port/pin
+- `Board_Digital_Write()`: write a value to selected port/pin
 - `Board_Digital_Read()`: read a value from selected port/pin
 
-[LPCOpen] chip support library provides one function for each of these tasks and it is similar for other chips and their support libraries. We used `port`, `pin`, `pPORT` and `modefunc` values to call these LPCOpen functions with correct parameters. Do something similar with functions for your chip.
+[LPCOpen] chip support library provides one function for each of these tasks and it should be similar for other chips and their support libraries. We used `port`, `pin`, `pPORT` and `modefunc` values to call these LPCOpen functions with correct parameters. Do something similar with functions for your chip.
 
-Once done, rebuild your arduino-xc-portbase library
+Once done, rebuild your arduino-xc-portbase library and make sure all errors and warnings are gone.
 
 
 ##### Implementing delay functions
 
 In order to be able to blink a LED using only Arduino code, we also need to implement HAL functions which support Arduino delay functions.
 
-This should be fairly simple, if your chip has dedicate timer peripheral, which most of today's chips should have.
+This should be fairly simple, if your chip has dedicated timer peripheral, which most of today's chips should have.
 
 The timer should be able to count microseconds, milliseconds in worst case, in order to be usable for Arduino. File [`src/board/w_delay.cpp`](https://github.com/zeeduino/arduino-xc-portbase/blob/master/src/board/w_delay.cpp) contains all the HAL functions that need to be implemented for Arduino delay/timing support.
 
@@ -353,7 +371,7 @@ Both of these need just one thing: call to chip library support function that re
 Having finished that, you now have working Arduino delay related functions (delay(), millis() etc.).
 
 **!!! IMPORTANT NOTE ABOUT DELAY FUNCTIONS !!!**
-> Since timer/counter is 32-bit register/value (usually), it will wrap around fairly soon after chip powers up. This means that, i.e. using `millis()` function to implement your own non-blocking delays will fail after a while unless you handle this wrap around. This wrap around happens after ~477 seconds in our arduino-xc-lpc13xx HAL implementation.
+> Since timer/counter is 32-bit register/value (usually), it will wrap around fairly soon after chip powers up. This means that, i.e. using `millis()` function to implement your own non-blocking delays will fail after a while unless you handle this wrap-around. This wrap-around happens after ~477 seconds in our arduino-xc-lpc13xx HAL implementation.
 > 
 > [basicSketch.cpp] from [basicSketch project] contains implementation of `timeLapseMillis()` function which handles wrap-around, and which you can use to check if the time has come to do some periodic work, like blinking a LED.
 > 
@@ -361,17 +379,20 @@ Having finished that, you now have working Arduino delay related functions (dela
 
 #### Running first Arduino sketch on your microcontroller (finally!!)
 
-Now you can rebuild basicSketch project you previously created and it will link against your portbase library which has digital pin and delay **`Board*`** functions implemented. If you connect LED to whatever pin on your chip that you decided will be the Arduino pin #13 (default LED pin), you should see the LED blinking of you run basicSketch project.
+Now you can rebuild basicSketch project you previously created and it will link against your portbase library which has digital pin and delay **`Board*`** functions implemented. If you connect LED to whatever pin on your chip that you decided will be the Arduino pin #13 (default LED pin), you should see the LED blinking when you run the basicSketch project.
 
 Hooray!!
 
 
 #### Implementing other HAL functions
 
-It would take an entire book to write in order to go through all the details on how to implement the resto of the HAL functions.
+It would take an entire book to write in order to go through all the details on how to implement the rest of the HAL functions.
 
 Luckily, there's at least one complete implementation of all the HAL functions listed in the next section. You can take a look at [Arduino-XC HAL implementation for LPC13xx](https://github.com/zeeduino/arduino-xc-lpc13xx), see how various board functions are implemented there and do similar thing for your microcontroller.
 
+You have to do that only once, and after that every next Arduino project on your microcontroller will be a breeze to start and to code!
+
+Enjoy!
 
 #### List of HAL functions
 
@@ -451,7 +472,8 @@ Core library (Serial, SPI, Wire):
 
 [LPCOpen]: http://www.nxp.com/products/microcontrollers-and-processors/arm-processors/lpc-cortex-m-mcus/software-tools/lpcopen-libraries-and-examples:LPC-OPEN-LIBRARIES
 [Atmel Software Framework]: http://www.atmel.com/tools/avrsoftwareframework.aspx
-[arduino-xc library on lpc1347]: http://zeeduino.com
 [basicSketch project]: https://github.com/zeeduino/arduino-xc-basicSketch
 [basicSketch.cpp]: https://github.com/zeeduino/arduino-xc-basicSketch/blob/master/src/basicSketch.cpp
 
+[arduino-xc library on lpc1347]: http://zeeduino.com
+[creating portbase library for lpc11u37]: http://zeeduino.com
