@@ -1,7 +1,7 @@
-## Arduino-XC - easily portable Arduino code base
+## Zeeduino-XC - portable implementation of Arduino/Wiring core functions and classes
 
 Main goal of this project is to bring to your favourite microcontroller that ease of setting up, 
-coding and building electronics gadgets which is a hallmark of [Arduino](https://www.arduino.org/) project.
+coding and building electronics gadgets which is a hallmark of Wiring and Arduino projects.
 
 It essentialy makes available for any microcontroller:
 
@@ -14,22 +14,22 @@ It essentialy makes available for any microcontroller:
 * a lot of Arduino libraries for various chips, sensors, boards etc. 
 
 Once you are over that first bump/hill of implementing and setting up the hardware abstraction layer for your favourite microcontroller,
-Arduino-XC will have you writing Arduino-compatible code in no time and using well-written Arduino libraries in your projects with ease.
+Zeeduino-XC will have you writing Arduino/Wiring-compatible code in no time and using well-written Arduino/Wiring libraries in your projects with ease.
 
 NOTE:
-> This is NOT an Arduino IDE, Arduino IDE plugin nor it has anything to do with [Arduino IDE](https://www.arduino.cc/).
+> This is NOT an Arduino IDE, Wiring IDE, Arduino or Wiring IDE plugin.
 
 
-## Arduino-XC - the concept
+## Zeeduino-XC - the concept
 
-Arduino is originally written for Atmel microcontrollers and there are more than few places in it's code-base where
-Atmel-specific code is used. However, Arduino core is essentially a bunch of C++ classes which, it turns out, can be compiled
+Wiring and Arduino are originally written for Atmel microcontrollers and there are more than few places in it's code-base where
+Atmel-specific code is used. However, the core code is essentially a bunch of C++ classes which, it turns out, can be compiled
 for any microcontroller if their compiler/development environment supports C++.
 
 The only thing that needs to be moved out of the way are those Atmel specific pieces of code. The way to do that is to use
 HAL. Not [the computer from 2001 Odissey](https://en.wikipedia.org/wiki/HAL_9000), but an ancient design pattern: Hardware Abstraction Layer.
 
-Arduino-XC does exactly that.
+Zeeduino-XC does exactly that.
 
 Hours and hours have been invested into:
 
@@ -45,9 +45,9 @@ Check the [Howto](HOWTO.md) doc
 
 ## Implemented core Arduino functions
 
-The list is based off of [Arduino IDE reference](https://www.arduino.cc/en/Reference/HomePage) page.
+The list is based off of [Wiring Framework](http://wiring.org.co/reference/) and [Arduino IDE](https://www.arduino.cc/en/Reference/HomePage) reference pages.
 
-If a structure/variable/function is not listed here, that means it is implemented because it is a part of the C++ language or the standard C library.
+If a structure/variable/function is not listed here, that means it is implemented as a part of the C++ language or the standard C library.
 
 
 **Constants**
@@ -156,7 +156,7 @@ If a structure/variable/function is not listed here, that means it is implemente
 - [ ] Mouse 
 
 
-### Standard Libraries
+### Core Libraries
 
 - [ ] EEPROM - reading and writing to "permanent" storage
 - [x] SPI - for communicating with devices using the Serial Peripheral Interface (SPI) Bus
