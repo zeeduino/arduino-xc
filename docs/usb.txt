@@ -1,0 +1,12 @@
+usb device
+
+zeeduino-core:
+    - usb classes
+    - board api declarations
+
+zeeduino-hal:
+    - board api definitions
+    - usb configuration (is it cdc, custom, hid, composite; mfg, product, serial strings etc...)
+    - usb descriptors based on usb configuration
+    - chip specific functions
+

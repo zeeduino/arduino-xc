@@ -1,27 +1,23 @@
-arduino-xc:
+zeeduino-xc:
 
-Arduino core classes/functions
-Arduino libraries (SPI, Wire, UART, etc)
-	References Arduino Core
-Arduino contrib libraries (sensors, chips, displays, etc)
-	Reference Arduino core and core libs
+Zeeduino core classes/functions
+Zeeduino libraries (SPI, Wire, UART, USB, etc)
+	References Zeeduino Core
 
 
-inc -> Arduino core header files. These DO NOT reference board API functions or include board API headers.
+inc -> Zeeduino core header files. These DO NOT reference board API functions or include board API headers.
 inc/board -> board API specification
-inc/lib -> Core Arduino libraries (SPI, Wire, UART, etc)
-inc/contrib -> Additional Arduino libraries (sensors, chips, displays, etc)
+inc/lib -> Core Zeeduino libraries (SPI, Wire, UART, USB, etc)
 
-src -> Arduino core implementation. These DO reference board API functions or include board API headers.
-src/lib/xyz -> Core Arduino library class implementation.  These DO reference board API functions or include board API headers.
-src/contrib -> Additional Arduino library implementations
+src -> Zeeduino core implementation. These DO reference board API functions or include board API headers.
+src/lib/xyz -> Core Zeeduino library class implementation.  These DO reference board API functions or include board API headers.
 
 
 --------------------------------------------
-arduino-xc-lpc13xx:
+zeeduino-xc-lpc13xx:
 
-Arduino XC board API implementation for LPC13xx variant
-Uses Arduino Core headers (board API)
+Zeeduino XC board API implementation for LPC13xx variant
+Uses Zeeduino Core headers (board API)
 Headers from here ("board_private.h" and "pins_arduino.h") should be NEVER included directly by sketches if you want them to be portable.
 
 inc -> contains "board_private.h" and "pins_arduino.h": variant specific definitions used by board API implementation files (src, src/inc)
@@ -31,7 +27,6 @@ src/board -> board API implementation
 =============================================
 
 Sketch should ONLY include core or lib headers
-Sketch project should reference arduino-xc project and arduino-xc-variant project with any additional, chip specific libraries/projects
 
 New Arduino contrib library should only reference core, or other Arduino libraries header files.
 All and any necessary variant (i.e. lpc13xx) header files should be referenced by "variant.h"
