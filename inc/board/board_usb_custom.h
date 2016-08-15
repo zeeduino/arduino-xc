@@ -8,6 +8,8 @@
 #ifndef BOARD_BOARD_USB_CUSTOM_H_
 #define BOARD_BOARD_USB_CUSTOM_H_
 
+#include "board/board_usb_device.h"
+
 #include <inttypes.h>
 
 #ifdef __cplusplus

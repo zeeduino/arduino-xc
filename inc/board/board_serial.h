@@ -50,6 +50,7 @@ typedef struct _Serial_UART_Context
     uint32_t dwIrq;
 } Serial_UART_Context;
 
+/* To help cast void* UART handle into the context struct */
 #define UART_CONTEXT(p) ((Serial_UART_Context*)(p))
 
 

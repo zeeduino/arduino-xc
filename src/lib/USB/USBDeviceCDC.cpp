@@ -12,6 +12,26 @@ USBDeviceCDC::USBDeviceCDC()
 {
 }
 
+void USBDeviceCDC::begin()
+{
+	init();
+}
+
+void USBDeviceCDC::init()
+{
+	Board_USB_Device_Init();
+}
+
+bool USBDeviceCDC::isDeviceConfigured()
+{
+	return Board_USB_Device_isConfigured();
+}
+
+bool USBDeviceCDC::isInitialized()
+{
+	return Board_USB_Device_isInitialized();
+}
+
 bool USBDeviceCDC::isConnected()
 {
 	return Board_USB_Device_CDC_isConnected();

@@ -13,7 +13,12 @@ class USBDeviceCustom
 public:
 	USBDeviceCustom();
 
+	bool isConnected();
+	bool isDeviceConfigured();
+	bool isInitialized();
+
 private:
+	void init();
 };
 
 
