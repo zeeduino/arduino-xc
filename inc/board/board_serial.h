@@ -21,7 +21,8 @@
 #define BOARD_SERIAL_H_
 
 #include <stddef.h>
-#include "ringbuffer.h"
+
+#include "board/board_serial_context.h"
 
 void Serial_Init(void);
 
@@ -38,20 +39,6 @@ void Serial_UART_Set_Interrupt_Priority(void *uartHandle, uint32_t priority);
 uint32_t Serial_UART_Get_Interrupt_Priority(void *uartHandle);
 void Serial_UART_Disable_Interrupt(void *uartHandle);
 void Serial_UART_Enable_Interrupt(void *uartHandle);
-
-typedef struct _Serial_UART_Context
-{
-    uint32_t dwId;
-	void *pUART;
-    RingBuffer *rx_rbr;
-    RingBuffer *tx_rbr;
-    uint8_t *rx_buffer;
-    uint8_t *tx_buffer;
-    uint32_t dwIrq;
-} Serial_UART_Context;
-
-/* To help cast void* UART handle into the context struct */
-#define UART_CONTEXT(p) ((Serial_UART_Context*)(p))
 
 
 #endif /* BOARD_SERIAL_H_ */

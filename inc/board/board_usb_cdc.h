@@ -9,6 +9,7 @@
 #define BOARD_BOARD_USB_CDC_H_
 
 #include "board/board_usb_device.h"
+#include "board/board_serial_context.h"
 
 #include <inttypes.h>
 
