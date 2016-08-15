@@ -24,16 +24,11 @@
 #include "board/board_serial.h"
 #include "board/variant.h" // yield();
 
-
 // Constructors ////////////////////////////////////////////////////////////////
 
-UARTSerial::UARTSerial( void* pUart, uint32_t dwIrq, uint32_t dwId, RingBuffer* pRx_buffer, RingBuffer* pTx_buffer )
+UARTSerial::UARTSerial( void* pUart )
 {
-  _rx_buffer = pRx_buffer;
-  _tx_buffer = pTx_buffer;
-
-  _pUart=pUart;
-  _dwIrq=dwIrq;
+  uartHandle=pUart;
 }
 
 // Public Methods //////////////////////////////////////////////////////////////
@@ -50,49 +45,49 @@ void UARTSerial::begin(const uint32_t dwBaudRate, const uint32_t config)
 
 void UARTSerial::init(const uint32_t dwBaudRate, const uint32_t configData)
 {
-    RingBuffer_flush(_rx_buffer);
-    RingBuffer_flush(_tx_buffer);
+    RingBuffer_flush(UART_CONTEXT(uartHandle)->rx_rbr);
+    RingBuffer_flush(UART_CONTEXT(uartHandle)->tx_rbr);
 
-    Serial_UART_Init(_pUart, _dwIrq, dwBaudRate, configData);
+    Serial_UART_Init(uartHandle, dwBaudRate, configData);
 }
 
 void UARTSerial::end( void )
 {
   // Clear any received data
-  RingBuffer_flush(_rx_buffer);
+  RingBuffer_flush(UART_CONTEXT(uartHandle)->rx_rbr);
 
   // Wait for any outstanding data to be sent
   flush();
 
   /* DeInitialize UART0 peripheral */
-  Serial_UART_End(_pUart, _dwIrq);
+  Serial_UART_End(uartHandle);
 }
 
 void UARTSerial::setInterruptPriority(uint32_t priority)
 {
-    Serial_UART_Set_Interrupt_Priority(_dwIrq, priority & 0x0F);
+    Serial_UART_Set_Interrupt_Priority(uartHandle, priority & 0x0F);
 }
 
 uint32_t UARTSerial::getInterruptPriority()
 {
-    return Serial_UART_Get_Interrupt_Priority(_dwIrq);
+    return Serial_UART_Get_Interrupt_Priority(uartHandle);
 }
 
 int UARTSerial::available( void )
 {
-    return RingBuffer_availableData(_rx_buffer);
+    return RingBuffer_availableData(UART_CONTEXT(uartHandle)->rx_rbr);
 }
 
 int UARTSerial::availableForWrite(void)
 {
-    return RingBuffer_availableSpace(_tx_buffer);
+    return RingBuffer_availableSpace(UART_CONTEXT(uartHandle)->tx_rbr);
 }
 
 int UARTSerial::peek( void )
 {
     int8_t uc = -1;
 
-    int result = RingBuffer_peek(_rx_buffer, &uc);
+    int result = RingBuffer_peek(UART_CONTEXT(uartHandle)->rx_rbr, &uc);
 
     if(result == 0)
         return -1;
@@ -103,7 +98,7 @@ int UARTSerial::peek( void )
 int UARTSerial::read( void )
 {
     int8_t uc = -1;
-    if(RingBuffer_pop(_rx_buffer, (uint8_t *) &uc, 1) == 0)
+    if(RingBuffer_pop(UART_CONTEXT(uartHandle)->rx_rbr, (uint8_t *) &uc, 1) == 0)
     {
         uc = -1;
     }
@@ -113,9 +108,9 @@ int UARTSerial::read( void )
 
 void UARTSerial::flush( void )
 {
-    while(!RingBuffer_isEmpty(_tx_buffer)) yield(); //wait for transmit data to be sent
+    while(!RingBuffer_isEmpty(UART_CONTEXT(uartHandle)->tx_rbr)) yield(); //wait for transmit data to be sent
 
-    Serial_UART_Flush(_pUart);
+    Serial_UART_Flush(uartHandle);
 }
 
 size_t UARTSerial::write( const uint8_t uc_data )
@@ -132,7 +127,7 @@ size_t UARTSerial::write(const uint8_t *buffer, size_t size)
     while(bytesSent < size)
     {
         size = size - bytesSent;
-        while ( !Serial_UART_TxRegisterEmpty(_pUart) ) yield();
+        while ( !Serial_UART_TxRegisterEmpty(uartHandle) ) yield();
         if(size > 0)
         {
             buffer = buffer + bytesSent;
@@ -153,17 +148,17 @@ uint32_t UARTSerial::sendRingBuffer(const void *buffer, int size)
      * we fill it with data to be sent, so we'll disable UART
      * interrupt here
      */
-    Serial_UART_Disable_Interrupt(_pUart, _dwIrq);
+    Serial_UART_Disable_Interrupt(uartHandle);
 
     /* Move as much data as possible into transmit ring buffer */
-    ret = RingBuffer_push(_tx_buffer, p8, size);
-    Serial_UART_Transmit(_pUart, _tx_buffer);
+    ret = RingBuffer_push(UART_CONTEXT(uartHandle)->tx_rbr, p8, size);
+    Serial_UART_Transmit(uartHandle);
 
     /* Add additional data to transmit ring buffer if possible */
-    ret += RingBuffer_push(_tx_buffer, (p8 + ret), (size - ret));
+    ret += RingBuffer_push(UART_CONTEXT(uartHandle)->tx_rbr, (p8 + ret), (size - ret));
 
     /* Enable UART transmit interrupt */
-    Serial_UART_Enable_Interrupt(_pUart, _dwIrq);
+    Serial_UART_Enable_Interrupt(uartHandle);
 
     return ret;
 }

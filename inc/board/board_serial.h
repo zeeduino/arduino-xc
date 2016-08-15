@@ -25,18 +25,32 @@
 
 void Serial_Init(void);
 
-void Serial_UART_Init(void *pUart, uint32_t dwIrq, const uint32_t dwBaudRate, const uint32_t configData);
-void Serial_UART_End(void *pUart, uint32_t dwIrq);
-void Serial_UART_Flush(void *pUart);
+void Serial_UART_Init(void *uartHandle, const uint32_t dwBaudRate, const uint32_t configData);
+void Serial_UART_End(void *uartHandle);
+void Serial_UART_Flush(void *uartHandle);
 
-void Serial_UART_Transmit(void *pUart, RingBuffer *_tx_buffer);
-void Serial_UART_Receive(void *pUart, RingBuffer *_rx_buffer);
-bool Serial_UART_TxRegisterEmpty(void *pUART);
-bool Serial_UART_RxRegisterHasData(void *pUART);
+void Serial_UART_Transmit(void *uartHandle);
+void Serial_UART_Receive(void *uartHandle);
+bool Serial_UART_TxRegisterEmpty(void *uartHandle);
+bool Serial_UART_RxRegisterHasData(void *uartHandle);
 
-void Serial_UART_Set_Interrupt_Priority(uint32_t dwIrq, uint32_t priority);
-uint32_t Serial_UART_Get_Interrupt_Priority(uint32_t dwIrq);
-void Serial_UART_Disable_Interrupt(void *pUART, uint32_t dwIrq);
-void Serial_UART_Enable_Interrupt(void *pUART, uint32_t dwIrq);
+void Serial_UART_Set_Interrupt_Priority(void *uartHandle, uint32_t priority);
+uint32_t Serial_UART_Get_Interrupt_Priority(void *uartHandle);
+void Serial_UART_Disable_Interrupt(void *uartHandle);
+void Serial_UART_Enable_Interrupt(void *uartHandle);
+
+typedef struct _Serial_UART_Context
+{
+    uint32_t dwId;
+	void *pUART;
+    RingBuffer *rx_rbr;
+    RingBuffer *tx_rbr;
+    uint8_t *rx_buffer;
+    uint8_t *tx_buffer;
+    uint32_t dwIrq;
+} Serial_UART_Context;
+
+#define UART_CONTEXT(p) ((Serial_UART_Context*)(p))
+
 
 #endif /* BOARD_SERIAL_H_ */

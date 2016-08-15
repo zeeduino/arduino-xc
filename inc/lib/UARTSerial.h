@@ -64,7 +64,7 @@ class UARTSerial : public HardwareSerial
 {
   public:
     UARTSerial(){};
-    UARTSerial(void* pUart, uint32_t dwIrq, uint32_t dwId, RingBuffer* pRx_buffer, RingBuffer* pTx_buffer);
+    UARTSerial(void* pUart);
 
     void begin(const uint32_t dwBaudRate);
     void begin(const uint32_t dwBaudRate, const uint32_t config);
@@ -89,11 +89,7 @@ class UARTSerial : public HardwareSerial
     void init(const uint32_t dwBaudRate, const uint32_t config);
     uint32_t sendRingBuffer(const void *buffer, int size);
 
-    RingBuffer *_rx_buffer;
-    RingBuffer *_tx_buffer;
-
-    void* _pUart;
-    uint32_t _dwIrq;
+    void* uartHandle;
 
 };
 
