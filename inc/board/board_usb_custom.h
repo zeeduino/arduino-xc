@@ -17,8 +17,9 @@ extern "C" {
 #endif
 
 bool Board_USB_Device_Custom_isReadyToSend(void);
-bool Board_USB_Device_Custom_Send(uint8_t const * p_data, uint32_t length);
-bool Board_USB_Device_Custom_Receive(uint8_t * p_data, uint32_t length);
+uint32_t Board_USB_Device_Custom_availableDataCount(void);
+uint32_t Board_USB_Device_Custom_Send(uint8_t const * buffer, uint32_t length);
+uint32_t Board_USB_Device_Custom_Receive(uint8_t * buffer, uint32_t length);
 
 #ifdef __cplusplus
 }
