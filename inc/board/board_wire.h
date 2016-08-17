@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 
+#define SPEED_10KHZ          10000
 #define SPEED_100KHZ         100000
 #define SPEED_400KHZ         400000
 
