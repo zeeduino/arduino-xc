@@ -19,10 +19,10 @@
 #ifndef _WIRING_MATH_
 #define _WIRING_MATH_
 
-extern long random( long ) ;
-extern long random( long, long ) ;
+extern long random( long howbig ) ;
+extern long random( long howsmall, long howbig ) ;
 extern void randomSeed( uint32_t dwSeed ) ;
-extern long map( long, long, long, long, long ) ;
+extern long map( long x, long in_min, long in_max, long out_min, long out_max ) ;
 
 extern uint16_t makeWord( uint16_t w ) ;
 extern uint16_t makeWord( uint8_t h, uint8_t l ) ;
