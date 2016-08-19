@@ -58,8 +58,7 @@ extern const uint32_t arduinoPinsArrayLength;
 
 // Right now, PWM output only works on the pins with
 // hardware support.  These are defined in the appropriate
-// pins_*.c file.  For the rest of the pins, we default
-// to digital output.
+// pins_*.c file.  For the rest of the pins we do nothing
 void analogWrite(uint32_t ulPin, uint32_t ulValue)
 {
     if ( !isPin(ulPin) )
@@ -69,12 +68,12 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue)
     if ( !isPinPwm(ulPin) )
     {
         // Defaults to digital write
-        pinMode(ulPin, OUTPUT);
-        ulValue = mapBits(ulValue, _writeResolution, 8);
-        if (ulValue < 128)
-            digitalWrite(ulPin, LOW);
-        else
-            digitalWrite(ulPin, HIGH);
+//        pinMode(ulPin, OUTPUT);
+//        ulValue = mapBits(ulValue, _writeResolution, 8);
+//        if (ulValue < 128)
+//            digitalWrite(ulPin, LOW);
+//        else
+//            digitalWrite(ulPin, HIGH);
         return;
     }
 
