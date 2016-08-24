@@ -16,6 +16,7 @@
 #define FAST_ZPIN_HANDLE(handleName) \
 		volatile uint32_t *VARIABLE_NAME(handleName, PinSetPort); \
 		volatile uint32_t *VARIABLE_NAME(handleName, PinClrPort); \
+		volatile uint32_t *VARIABLE_NAME(handleName, PinReadPort); \
 		volatile uint32_t *VARIABLE_NAME(handleName, PinTogglePort); \
 		uint32_t VARIABLE_NAME(handleName, PinPosition);
 
@@ -23,6 +24,7 @@
 		Board_Fast_Pins_Handle_Init( \
 			&(VARIABLE_NAME(handleName, PinSetPort)), \
 			&(VARIABLE_NAME(handleName, PinClrPort)), \
+			&(VARIABLE_NAME(handleName, PinReadPort)), \
 			&(VARIABLE_NAME(handleName, PinTogglePort)), \
 			&(VARIABLE_NAME(handleName, PinPosition)), \
 			arduinoPin); \
@@ -30,6 +32,7 @@
 #define FAST_ZPIN_HIGH(handleName) *(VARIABLE_NAME(handleName, PinSetPort)) = VARIABLE_NAME(handleName, PinPosition);
 #define FAST_ZPIN_LOW(handleName) *(VARIABLE_NAME(handleName, PinClrPort)) = VARIABLE_NAME(handleName, PinPosition);
 #define FAST_ZPIN_TOGGLE(handleName) *(VARIABLE_NAME(handleName, PinTogglePort)) = VARIABLE_NAME(handleName, PinPosition);
+#define FAST_ZPIN_READ(handleName) (*(VARIABLE_NAME(handleName, PinReadPort)) & VARIABLE_NAME(handleName, PinPosition))
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,6 +41,7 @@ extern "C" {
 extern void Board_Fast_Pins_Handle_Init(
 		volatile uint32_t **pinSetHandle,
 		volatile uint32_t **pinClrHandle,
+		volatile uint32_t **pinReadHandle,
 		volatile uint32_t **pinToggleHandle,
 		volatile uint32_t *pinPositionHandle,
 		int arduinoPin);
