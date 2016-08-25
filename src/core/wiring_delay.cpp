@@ -65,7 +65,7 @@ void delayMicroseconds( uint32_t dwUs )
 
     while(delta < dwUs)
     {
-        yield();
+//        yield();
         now = Board_Delay_Micros();
         if(now < start)
         {

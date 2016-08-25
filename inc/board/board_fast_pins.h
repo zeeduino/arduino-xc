@@ -29,10 +29,11 @@
 			&(VARIABLE_NAME(handleName, PinPosition)), \
 			arduinoPin); \
 
-#define FAST_ZPIN_HIGH(handleName) *(VARIABLE_NAME(handleName, PinSetPort)) = VARIABLE_NAME(handleName, PinPosition);
-#define FAST_ZPIN_LOW(handleName) *(VARIABLE_NAME(handleName, PinClrPort)) = VARIABLE_NAME(handleName, PinPosition);
-#define FAST_ZPIN_TOGGLE(handleName) *(VARIABLE_NAME(handleName, PinTogglePort)) = VARIABLE_NAME(handleName, PinPosition);
+#define FAST_ZPIN_HIGH(handleName) *(VARIABLE_NAME(handleName, PinSetPort)) = VARIABLE_NAME(handleName, PinPosition)
+#define FAST_ZPIN_LOW(handleName) *(VARIABLE_NAME(handleName, PinClrPort)) = VARIABLE_NAME(handleName, PinPosition)
+#define FAST_ZPIN_TOGGLE(handleName) *(VARIABLE_NAME(handleName, PinTogglePort)) = VARIABLE_NAME(handleName, PinPosition)
 #define FAST_ZPIN_READ(handleName) (*(VARIABLE_NAME(handleName, PinReadPort)) & VARIABLE_NAME(handleName, PinPosition))
+#define FAST_ZPIN_WRITE(handleName, value) (value) == 0 ? FAST_ZPIN_LOW(handleName) : FAST_ZPIN_HIGH(handleName)
 
 #ifdef __cplusplus
 extern "C" {
